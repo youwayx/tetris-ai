@@ -1,0 +1,3 @@
+// AI methods
+
+function getPositions()
