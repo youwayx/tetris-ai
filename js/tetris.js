@@ -1,5 +1,6 @@
 var COLS = 10, ROWS = 20;
 var board = [];
+var boardAI = [];
 var lose;
 var interval;
 var current; // current moving shape
@@ -45,14 +46,17 @@ function newShape() {
     // position where the shape will evolve
     currentX = 5;
     currentY = 0;
+    movePiece();
 }
 
 // clears the board
 function init() {
     for ( var y = 0; y < ROWS; ++y ) {
-        board[ y ] = [];
+        board[y] = [];
+        boardAI[y] = [];
         for ( var x = 0; x < COLS; ++x ) {
             board[ y ][ x ] = 0;
+            boardAI[y][x] = 0;
         }
     }
 }
@@ -80,6 +84,7 @@ function freeze() {
         for ( var x = 0; x < 4; ++x ) {
             if ( current[ y ][ x ] ) {
                 board[ y + currentY ][ x + currentX ] = current[ y ][ x ];
+                boardAI[ y + currentY ][ x + currentX ] = current[ y ][ x ];
             }
         }
     }
@@ -113,6 +118,8 @@ function clearLines() {
             for ( var yy = y; yy > 0; --yy ) {
                 for ( var x = 0; x < COLS; ++x ) {
                     board[ yy ][ x ] = board[ yy - 1 ][ x ];
+                    boardAI[ yy ][ x ] = boardAI[ yy - 1 ][ x ];
+
                 }
             }
             ++y;

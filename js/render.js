@@ -9,6 +9,9 @@ function drawBlock( x, y ) {
     ctx.strokeRect( BLOCK_W * x, BLOCK_H * y, BLOCK_W - 1 , BLOCK_H - 1 );
 }
 
+function getBoard() {
+    return board;
+}
 // draws the board and the moving shape
 function render() {
     ctx.clearRect( 0, 0, W, H );
