@@ -5,6 +5,7 @@ var lose;
 var interval;
 var current; // current moving shape
 var currentX, currentY; // position of current shape
+var lines = 0;
 var shapes = [
     [ 1, 1, 1, 1 ],
     [ 1, 1, 1, 0,
@@ -69,9 +70,12 @@ function tick() {
     // if the element settled
     else {
         freeze();
+        for (var i=0; i<ROWS; i++) {
+            console.log("board: " + board[i]);
+        }
         clearLines();
         if (lose) {
-            newGame();
+            console.log("LOST");
             return false;
         }
         newShape();
@@ -123,6 +127,7 @@ function clearLines() {
                 }
             }
             ++y;
+            lines++;
         }
     }
 }
@@ -161,8 +166,6 @@ function valid( offsetX, offsetY, newCurrent ) {
     offsetY = currentY + offsetY;
     newCurrent = newCurrent || current;
 
-
-
     for ( var y = 0; y < 4; ++y ) {
         for ( var x = 0; x < 4; ++x ) {
             if ( newCurrent[ y ][ x ] ) {
@@ -172,7 +175,6 @@ function valid( offsetX, offsetY, newCurrent ) {
                   || x + offsetX < 0
                   || y + offsetY >= ROWS
                   || x + offsetX >= COLS ) {
-                    if (offsetY == 1) lose = true; // lose if the current shape at the top row when checked
                     return false;
                 }
             }
@@ -181,12 +183,16 @@ function valid( offsetX, offsetY, newCurrent ) {
     return true;
 }
 
+function gameOver() {
+    allFitness.push(lines);
+    lose = true;
+}
+
 function newGame() {
     clearInterval(interval);
     init();
     newShape();
     lose = false;
-    interval = setInterval( tick, 250 );
+    setInterval(tick, 100);
 }
 
-newGame();
