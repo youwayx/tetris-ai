@@ -70,12 +70,10 @@ function tick() {
     // if the element settled
     else {
         freeze();
-        for (var i=0; i<ROWS; i++) {
-            console.log("board: " + board[i]);
-        }
         clearLines();
         if (lose) {
-            console.log("LOST");
+            console.log("lose");
+            stopGame();
             return false;
         }
         newShape();
@@ -188,11 +186,15 @@ function gameOver() {
     lose = true;
 }
 
-function newGame() {
+function stopGame() {
     clearInterval(interval);
+}
+
+function newGame() {
     init();
     newShape();
     lose = false;
-    setInterval(tick, 100);
+    interval = setInterval(tick, 100);
+
 }
 

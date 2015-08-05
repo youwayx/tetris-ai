@@ -9,8 +9,8 @@
 
 
 // mutation probabilities
-var MUTATE_ALPHA1 = .1;
-var MUTATE_ALPHA2 = .2;
+var MUTATE_ALPHA1 = .2;
+var MUTATE_ALPHA2 = .3;
 var COPY_ALPHA1 = .6;
 var COPY_ALPHA2 = .5;
 var CROSSOVER = .6;
@@ -184,23 +184,23 @@ function generateChildren() {
         }
     }
     var rand = Math.random();
-    var child;
+    var child = [];
     for (var i = 0; i < 4; i++) {
         rand = Math.random();
         if (rand < MUTATE_ALPHA1) {
-            child = allWeights[alpha1].splice(0);
+            child = allWeights[alpha1].slice(0);
             child[i] *= 9/10;
             newWeights.push(child);
-            child = allWeights[alpha1].splice(0);
+            child = allWeights[alpha1].slice(0);
             child[i] *= 11/10;
             newWeights.push(child);
         }
         rand = Math.random();
         if (alpha2!=-1 && rand < MUTATE_ALPHA2) {
-            child = allWeights[alpha2].splice(0);
+            child = allWeights[alpha2].slice(0);
             child[i] *= 9/10;
             newWeights.push(child);
-            child = allWeights[alpha2].splice(0);
+            child = allWeights[alpha2].slice(0);
             child[i] *= 11/10;
             newWeights.push(child);
         }
@@ -217,20 +217,21 @@ function generateChildren() {
             newWeights.push(allWeights[alpha2]);
         }
         for (var i=0; i<4; i++) {
-            child = allWeights[alpha1].splice(0);
+            child = allWeights[alpha1].slice(0);
             rand = Math.random();
             if (rand > CROSSOVER) {
                 child[i] = allWeights[alpha2][i];
             }
         }   
+        newWeights.push(child);
     }
-    newWeights.push(child);
     allWeights = newWeights;
+    
     allFitness = [];
 }
 
 for (var i=0; i<2; i++) {
-    generateChildren();
+    //generateChildren();
     console.log("ALLWEIGHTS " + allWeights);
     for (var j = 0; j < allWeights.length; j++) {
         weights = allWeights[j];
