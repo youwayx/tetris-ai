@@ -72,9 +72,10 @@ function tick() {
         freeze();
         clearLines();
         if (lose) {
-            console.log("lose");
-            stopGame();
-            return false;
+            allFitness[wCounter] = lines;
+            wCounter++;
+            newGame();
+            return;
         }
         newShape();
     }
@@ -116,7 +117,6 @@ function clearLines() {
             }
         }
         if ( rowFilled ) {
-            document.getElementById( 'clearsound' ).play();
             for ( var yy = y; yy > 0; --yy ) {
                 for ( var x = 0; x < COLS; ++x ) {
                     board[ yy ][ x ] = board[ yy - 1 ][ x ];
@@ -182,7 +182,7 @@ function valid( offsetX, offsetY, newCurrent ) {
 }
 
 function gameOver() {
-    allFitness.push(lines);
+    
     lose = true;
 }
 
@@ -190,11 +190,5 @@ function stopGame() {
     clearInterval(interval);
 }
 
-function newGame() {
-    init();
-    newShape();
-    lose = false;
-    interval = setInterval(tick, 100);
 
-}
 

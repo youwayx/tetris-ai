@@ -13,7 +13,6 @@ var MUTATE_ALPHA1 = .2;
 var MUTATE_ALPHA2 = .3;
 var COPY_ALPHA1 = .6;
 var COPY_ALPHA2 = .5;
-var CROSSOVER = .6;
 
 // features
 var TOTAL_HEIGHT = 0;
@@ -26,6 +25,8 @@ var MIN_SCORE = -10000000;
 var allWeights = [[-0.51, -0.356, 0.76, -0.184]];
 var weights = [-0.51, -0.356, 0.76, -0.184];
 var allFitness = [0];
+var wCounter = 0;
+var numGenerations = 10;
 
 
 function movePiece() {
@@ -45,7 +46,7 @@ function movePiece() {
                     //console.log("COL" + i);
                     //console.log("ROW" + (j-1));
                     score = getBoardScore(i, j-1, newCurrent);
-                    console.log("SCORE " + score);
+                    //console.log("SCORE " + score);
                     if (score > maxScore) {
                         maxScore = score;
                         bestX = i;
@@ -185,57 +186,71 @@ function generateChildren() {
     }
     var rand = Math.random();
     var child = [];
+    console.log("alpha1 " + alpha1);
+    console.log("fitness " + allFitness);
+    console.log(allWeights);
+    var adjust = 0;
     for (var i = 0; i < 4; i++) {
-        rand = Math.random();
+        rand = Math.random()
         if (rand < MUTATE_ALPHA1) {
             child = allWeights[alpha1].slice(0);
-            child[i] *= 9/10;
-            newWeights.push(child);
-            child = allWeights[alpha1].slice(0);
-            child[i] *= 11/10;
+            adjust = Math.random() * (child[i] * 1/5) - (1/10 * child[i]);
+            child[i] = child[i] + adjust
             newWeights.push(child);
         }
         rand = Math.random();
         if (alpha2!=-1 && rand < MUTATE_ALPHA2) {
             child = allWeights[alpha2].slice(0);
-            child[i] *= 9/10;
+            adjust = Math.random() * (child[i] * 1/5) - (1/10 * child[i]);
+            child[i] = child[i] + adjust
             newWeights.push(child);
-            child = allWeights[alpha2].slice(0);
-            child[i] *= 11/10;
-            newWeights.push(child);
+            
         }
     }
 
     rand = Math.random();
-    if (rand < MUTATE_ALPHA1) {
-        newWeights.push(allWeights[alpha1]);
-    }
+    newWeights.push(allWeights[alpha1]);
     
     if (alpha2 != -1) {
         rand = Math.random();
-        if (rand < MUTATE_ALPHA2) {
+        if (rand < COPY_ALPHA2) {
             newWeights.push(allWeights[alpha2]);
         }
-        for (var i=0; i<4; i++) {
+        for (var cr = 0; cr < 4; cr++) {
             child = allWeights[alpha1].slice(0);
-            rand = Math.random();
-            if (rand > CROSSOVER) {
-                child[i] = allWeights[alpha2][i];
-            }
-        }   
-        newWeights.push(child);
+            for (var i=0; i<4; i++) {
+                rand = Math.random();
+                child[i] = allWeights[alpha1][i]*allFitness[alpha1] + allWeights[alpha2][i] * allFitness[alpha2];
+                child[i] /= (allFitness[alpha1] + allFitness[alpha2]);
+            }   
+            newWeights.push(child);
+        }
     }
+    console.log("NEW WEIGHTS" + newWeights);
     allWeights = newWeights;
-    
-    allFitness = [];
+    allFitness = Array.apply(null, Array(newWeights.length)).map(Number.prototype.valueOf,0);
 }
 
-for (var i=0; i<2; i++) {
-    //generateChildren();
-    console.log("ALLWEIGHTS " + allWeights);
-    for (var j = 0; j < allWeights.length; j++) {
-        weights = allWeights[j];
-        newGame();
+function newGame() {
+    clearInterval(interval);
+    if (wCounter >= allWeights.length) {
+        if (numGenerations == 0) {
+            clearInterval(interval);
+            return;
+        }
+        numGenerations--;
+        generateChildren();
+        wCounter = 0;
     }
-    
+    lines = 0;
+    weights = allWeights[wCounter];
+    console.log(weights);   
+    init();
+    newShape();
+    lose = false;
+
+    interval = setInterval(tick, 50);
+   
 }
+
+newGame();

@@ -2,6 +2,7 @@ var canvas = document.getElementsByTagName( 'canvas' )[ 0 ];
 var ctx = canvas.getContext( '2d' );
 var W = 300, H = 600;
 var BLOCK_W = W / COLS, BLOCK_H = H / ROWS;
+var renderInterval;
 
 // draw a single square at (x, y)
 function drawBlock( x, y ) {
@@ -38,4 +39,4 @@ function render() {
     }
 }
 
-setInterval( render, 50 );
+renderInterval = setInterval( render, 40 );
