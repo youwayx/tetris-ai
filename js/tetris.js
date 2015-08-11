@@ -73,6 +73,10 @@ function tick() {
         clearLines();
         if (lose) {
             allFitness[wCounter] = lines;
+            if (lines > bestFitness) {
+                bestFitness = lines;
+                bestWeights = allWeights[wCounter];
+            }
             wCounter++;
             newGame();
             return;

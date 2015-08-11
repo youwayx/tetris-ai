@@ -7,6 +7,7 @@
     currentY
 */
 
+var NUM_WEIGHTS = 4;
 
 // mutation probabilities
 var MUTATE_ALPHA1 = .2;
@@ -22,11 +23,14 @@ var NUM_HOLES = 3;
 
 var MIN_SCORE = -10000000;
 
-var allWeights = [[-0.51, -0.356, 0.76, -0.184]];
-var weights = [-0.51, -0.356, 0.76, -0.184];
-var allFitness = [0];
+var allWeights = [];
+var weights = [-0.5177346300965753, -0.3354374424714595, 0.76, -0.18813470738957924];
+var allFitness = Array.apply(null, Array(1000)).map(Number.prototype.valueOf,0);
 var wCounter = 0;
-var numGenerations = 10;
+var numGenerations = 10000;
+
+var bestFitness = 0;
+var bestWeights = [];
 
 
 function movePiece() {
@@ -168,6 +172,30 @@ function getBoardScore(x, y, newCurrent) {
     return score;
 }
 
+function normalizeWeights(ws) {
+    var norm = 0;
+    for (var i = 0; i < ws.length; i++) {
+        norm += ws[i] * ws[i];
+    }
+    norm = Math.sqrt(norm);
+    for (var i = 0; i < ws.length; i++) {
+        ws[i] /= norm;
+    }
+}
+
+function generateInitialWeights() {
+    var rand = 0;
+    for (var j = 0; j < 1000; j++) {
+        var ws = [];
+        for (var i = 0; i < NUM_WEIGHTS; i++) {
+            rand = Math.random();
+            ws.push(rand);
+        }
+        normalizeWeights(ws);
+        allWeights.push(ws);
+    }
+    
+}
 function generateChildren() {
     var newWeights = []
     var alpha1Fitness = -1, alpha2Fitness = -1;
@@ -186,9 +214,9 @@ function generateChildren() {
     }
     var rand = Math.random();
     var child = [];
-    console.log("alpha1 " + alpha1);
-    console.log("fitness " + allFitness);
-    console.log(allWeights);
+    // console.log("alpha1 " + alpha1);
+    // console.log("fitness " + allFitness);
+    // console.log(allWeights);
     var adjust = 0;
     for (var i = 0; i < 4; i++) {
         rand = Math.random()
@@ -226,7 +254,7 @@ function generateChildren() {
             newWeights.push(child);
         }
     }
-    console.log("NEW WEIGHTS" + newWeights);
+    //console.log("NEW WEIGHTS" + newWeights);
     allWeights = newWeights;
     allFitness = Array.apply(null, Array(newWeights.length)).map(Number.prototype.valueOf,0);
 }
@@ -244,13 +272,14 @@ function newGame() {
     }
     lines = 0;
     weights = allWeights[wCounter];
-    console.log(weights);   
+    //console.log(weights);   
     init();
     newShape();
     lose = false;
 
-    interval = setInterval(tick, 50);
+    interval = setInterval(tick, 40);
    
 }
 
+generateInitialWeights();
 newGame();
