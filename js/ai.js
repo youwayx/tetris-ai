@@ -10,10 +10,7 @@
 var NUM_WEIGHTS = 4;
 
 // mutation probabilities
-var MUTATE_ALPHA1 = .2;
-var MUTATE_ALPHA2 = .3;
-var COPY_ALPHA1 = .6;
-var COPY_ALPHA2 = .5;
+var MUTATE = 0.05;
 
 // features
 var TOTAL_HEIGHT = 0;
@@ -181,6 +178,7 @@ function normalizeWeights(ws) {
     for (var i = 0; i < ws.length; i++) {
         ws[i] /= norm;
     }
+    return ws;
 }
 
 function generateInitialWeights() {
@@ -191,51 +189,56 @@ function generateInitialWeights() {
             rand = Math.random();
             ws.push(rand);
         }
-        normalizeWeights(ws);
+        ws = normalizeWeights(ws);
         allWeights.push(ws);
     }
     
 }
+
+function crossover(alpha1, alpha2, fitness1, fitness2) {
+    var offspring = [];
+    for (var i=0; i<alpha1.length; i++) {
+        offspring[i] = alpha1[i]*fitness1 + alpha2[i]*fitness2;
+    }
+    offspring = normalizeWeights(offspring);
+
+    var rand = Math.random();
+    if (rand < 0.05) {
+        var index = Math.floor(Math.random() * alpha1.length);
+        var change = Math.random() * 0.4 - 0.2;
+        offspring[index] += change;
+        offspring = normalizeWeights(offspring);
+    }
+    return offspring;
+}
+
 function generateChildren() {
-    var newWeights = []
+    var newWeights = [];
+    var nextGen = [];
     var alpha1Fitness = -1, alpha2Fitness = -1;
     var alpha1 = -1, alpha2 = -1;
-    for (var i = 0; i < allFitness.length; i++) {
-        if (allFitness[i] > alpha1Fitness) {
-            alpha2Fitness = alpha1Fitness;
-            alpha1Fitness = allFitness[i];
-            alpha2 = alpha1;
-            alpha1 = i;
+    var rand;
+    for (var cases = 0; cases < 300; cases++) {
+        for (var i = 0; i < 100; i ++) {
+            rand = Math.floor(Math.random()* 1000);
+            if (allFitness[rand] > alpha1Fitness) {
+                alpha2Fitness = alpha1Fitness;
+                alpha1Fitness = allFitness[rand];
+                alpha2 = alpha1;
+                alpha1 = rand;
+            }
+            else if (allFitness[rand] > alpha2Fitness) {
+                alpha2Fitness = allFitness[rand];
+                alpha2 = rand;
+            }
+            offspring = crossover(allFitness[alpha1], allFitness[alpha2], alpha1Fitness, alpha2Fitness);
+            nextGen.push(offspring);
         }
-        else if (allFitness[i] > alpha2Fitness) {
-            alpha2Fitness = allFitness[i];
-            alpha2 = i;
-        }
+        alpha1Fitness = -1;
+        alpha2Fitness = -1;
+        alpha1 = -1;
+        alpha2 = -1;
     }
-    var rand = Math.random();
-    var child = [];
-    // console.log("alpha1 " + alpha1);
-    // console.log("fitness " + allFitness);
-    // console.log(allWeights);
-    var adjust = 0;
-    for (var i = 0; i < 4; i++) {
-        rand = Math.random()
-        if (rand < MUTATE_ALPHA1) {
-            child = allWeights[alpha1].slice(0);
-            adjust = Math.random() * (child[i] * 1/5) - (1/10 * child[i]);
-            child[i] = child[i] + adjust
-            newWeights.push(child);
-        }
-        rand = Math.random();
-        if (alpha2!=-1 && rand < MUTATE_ALPHA2) {
-            child = allWeights[alpha2].slice(0);
-            adjust = Math.random() * (child[i] * 1/5) - (1/10 * child[i]);
-            child[i] = child[i] + adjust
-            newWeights.push(child);
-            
-        }
-    }
-
     rand = Math.random();
     newWeights.push(allWeights[alpha1]);
     
