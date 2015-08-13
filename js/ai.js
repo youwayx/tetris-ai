@@ -271,7 +271,7 @@ function newGame(ai) {
     newShape(ai);
     lose = false;
 
-    setInterval(function() { tick(ai); }, 1);
+    interval = setInterval(function() { tick(ai); }, 100);
     return;
 }
 
