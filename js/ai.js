@@ -257,24 +257,17 @@ AI.prototype.generateChildren = function() {
 }
 
 function newGame(ai) {
-    if (ai.count >= ai.allWeights.length) {
-        if (numGenerations == 0) {
-            clearInterval(interval);
-            return;
-        }
-        numGenerations--;
-        ai.generateChildren();
-        ai.count = 0;
-    }
+    ai.count = 0;
     lines = 0;
     init();
     newShape(ai);
     lose = false;
 
-    setInterval(function() { tick(ai); }, 1);
+    setInterval(function() { tick(ai); }, 200);
     return;
 }
 
 var ai = new AI(allWeights, allFitness);
 ai.generateInitialWeights();
+ai.allWeights[0] = [-0.38308486084908105, -0.30292061695035816, 0.10628298733078158, -0.8661345252434518];
 newGame(ai);
