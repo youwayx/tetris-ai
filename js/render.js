@@ -39,4 +39,4 @@ function render() {
     }
 }
 
-renderInterval = setInterval( render, 100 );
+renderInterval = setInterval( render, 50 );
