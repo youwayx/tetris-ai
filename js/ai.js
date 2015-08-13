@@ -30,7 +30,7 @@ var AI = function (allWeights, allFitness) {
     this.allFitness = allFitness;
     this.bestWeights = [];
     this.bestFitness = 0;
-
+    this.interval = 0;
     this.count = 0;
 }
 
@@ -256,13 +256,14 @@ AI.prototype.generateChildren = function() {
 }
 
 function newGame(ai) {
+    clearInterval(ai.interval);
     ai.count = 0;
     lines = 0;
     init();
     newShape(ai);
     lose = false;
 
-    setInterval(function() { tick(ai); }, 200);
+    ai.interval = setInterval(function() { tick(ai); }, 200);
     return;
 }
 

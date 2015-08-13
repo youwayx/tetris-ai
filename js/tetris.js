@@ -64,6 +64,7 @@ function init() {
 
 // keep the element moving down, creating new shapes and clearing lines
 function tick(ai) {
+    render();
     if ( valid( 0, 1 ) ) {
         ++currentY;
     }
