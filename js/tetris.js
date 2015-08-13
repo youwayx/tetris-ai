@@ -63,7 +63,7 @@ function init() {
 }
 
 // keep the element moving down, creating new shapes and clearing lines
-function tick() {
+function tick(ai) {
     if ( valid( 0, 1 ) ) {
         ++currentY;
     }
@@ -72,13 +72,12 @@ function tick() {
         freeze();
         clearLines();
         if (lose) {
-            allFitness[wCounter] = lines;
+            ai.insert(lines);
             if (lines > bestFitness) {
-                bestFitness = lines;
-                bestWeights = allWeights[wCounter];
+                ai.bestFitness = lines;
+                ai.bestWeights = allWeights[wCounter];
             }
-            wCounter++;
-            newGame();
+            newGame(ai);
             return;
         }
         newShape();

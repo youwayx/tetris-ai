@@ -7,6 +7,14 @@
     currentY
 */
 
+var AI = function (allWeights, allFitness) {
+    this.allWeights = allWeights;
+    this.allFitness = allFitness;
+    this.bestWeights = [];
+    this.bestFitness = [];
+
+    this.count = 0;
+}
 var NUM_WEIGHTS = 4;
 
 // mutation probabilities
@@ -23,11 +31,7 @@ var MIN_SCORE = -10000000;
 var allWeights = [];
 var weights = [-0.5177346300965753, -0.3354374424714595, 0.76, -0.18813470738957924];
 var allFitness = Array.apply(null, Array(1000)).map(Number.prototype.valueOf,0);
-var wCounter = 0;
 var numGenerations = 10000;
-
-var bestFitness = 0;
-var bestWeights = [];
 
 
 function movePiece() {
@@ -169,7 +173,22 @@ function getBoardScore(x, y, newCurrent) {
     return score;
 }
 
-function normalizeWeights(ws) {
+AI.prototype.insert = function(lines) {
+    this.allFitness[this.count] = lines;
+    for (var i = this.count-1; i>=0; i--) {
+        if (lines < this.allFitness[i]) {
+            var tempFitness = this.allFitness[i];
+            var tempWeights = this.allWeights[i];
+            this.allWeights[i] = this.allWeights[i+1];
+            this.allFitness[i] = lines;
+            this.allWeights[i+1] = tempWeights;
+            this.allFitness[i+1] = tempFitness;
+        }
+    }
+    this.count ++;
+}
+
+AI.prototype.normalizeWeights = function(ws) {
     var norm = 0;
     for (var i = 0; i < ws.length; i++) {
         norm += ws[i] * ws[i];
@@ -181,44 +200,44 @@ function normalizeWeights(ws) {
     return ws;
 }
 
-function generateInitialWeights() {
+AI.prototype.generateInitialWeights = function() {
     var rand = 0;
     for (var j = 0; j < 1000; j++) {
         var ws = [];
         for (var i = 0; i < NUM_WEIGHTS; i++) {
             rand = Math.random();
-            ws.push(rand);
+            ws[i] = rand;
         }
-        ws = normalizeWeights(ws);
-        allWeights.push(ws);
+        ws = this.normalizeWeights(ws);
+        this.allWeights[j] = ws;
     }
     
 }
 
-function crossover(alpha1, alpha2, fitness1, fitness2) {
+AI.prototype.crossover = function(alpha1, alpha2, fitness1, fitness2) {
     var offspring = [];
     for (var i=0; i<alpha1.length; i++) {
         offspring[i] = alpha1[i]*fitness1 + alpha2[i]*fitness2;
     }
-    offspring = normalizeWeights(offspring);
+    offspring = this.normalizeWeights(offspring);
 
     var rand = Math.random();
     if (rand < 0.05) {
         var index = Math.floor(Math.random() * alpha1.length);
         var change = Math.random() * 0.4 - 0.2;
         offspring[index] += change;
-        offspring = normalizeWeights(offspring);
+        offspring = this.normalizeWeights(offspring);
     }
     return offspring;
 }
 
-function generateChildren() {
+Ai.prototype.generateChildren = function() {
     var newWeights = [];
     var nextGen = [];
     var alpha1Fitness = -1, alpha2Fitness = -1;
     var alpha1 = -1, alpha2 = -1;
     var rand;
-    for (var cases = 0; cases < 300; cases++) {
+    for (var j = 0; j < 300; j++) {
         for (var i = 0; i < 100; i ++) {
             rand = Math.floor(Math.random()* 1000);
             if (allFitness[rand] > alpha1Fitness) {
@@ -231,47 +250,29 @@ function generateChildren() {
                 alpha2Fitness = allFitness[rand];
                 alpha2 = rand;
             }
-            offspring = crossover(allFitness[alpha1], allFitness[alpha2], alpha1Fitness, alpha2Fitness);
-            nextGen.push(offspring);
         }
+        offspring = this.crossover(allFitness[alpha1], allFitness[alpha2], alpha1Fitness, alpha2Fitness);
+        nextGen[j] = offspring;
         alpha1Fitness = -1;
         alpha2Fitness = -1;
         alpha1 = -1;
         alpha2 = -1;
     }
-    rand = Math.random();
-    newWeights.push(allWeights[alpha1]);
-    
-    if (alpha2 != -1) {
-        rand = Math.random();
-        if (rand < COPY_ALPHA2) {
-            newWeights.push(allWeights[alpha2]);
-        }
-        for (var cr = 0; cr < 4; cr++) {
-            child = allWeights[alpha1].slice(0);
-            for (var i=0; i<4; i++) {
-                rand = Math.random();
-                child[i] = allWeights[alpha1][i]*allFitness[alpha1] + allWeights[alpha2][i] * allFitness[alpha2];
-                child[i] /= (allFitness[alpha1] + allFitness[alpha2]);
-            }   
-            newWeights.push(child);
-        }
-    }
-    //console.log("NEW WEIGHTS" + newWeights);
-    allWeights = newWeights;
-    allFitness = Array.apply(null, Array(newWeights.length)).map(Number.prototype.valueOf,0);
+    this.allWeights = this.allWeights.splice(300);
+    this.allWeights = this.allWeights.concat(newWeights);
+    this.allFitness = Array.apply(null, Array(allWeights.length)).map(Number.prototype.valueOf,0);
 }
 
-function newGame() {
+function newGame(ai) {
     clearInterval(interval);
-    if (wCounter >= allWeights.length) {
+    if (ai.count >= ai.allWeights.length) {
         if (numGenerations == 0) {
             clearInterval(interval);
             return;
         }
         numGenerations--;
-        generateChildren();
-        wCounter = 0;
+        ai.generateChildren();
+        ai.count = 0;
     }
     lines = 0;
     weights = allWeights[wCounter];
@@ -280,9 +281,10 @@ function newGame() {
     newShape();
     lose = false;
 
-    interval = setInterval(tick, 40);
+    interval = setInterval(tick, 40, ai);
    
 }
 
-generateInitialWeights();
-newGame();
+var ai = AI(allWeights, allFitness);
+ai.generateInitialWeights();
+newGame(ai);
