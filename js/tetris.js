@@ -27,7 +27,7 @@ var colors = [
 
 // creates a new 4x4 shape in global variable 'current'
 // 4x4 so as to cover the size when the shape is rotated
-function newShape() {
+function newShape(ai) {
     var id = Math.floor( Math.random() * shapes.length );
     var shape = shapes[ id ]; // maintain id for color filling
 
@@ -47,7 +47,7 @@ function newShape() {
     // position where the shape will evolve
     currentX = 5;
     currentY = 0;
-    movePiece();
+    ai.movePiece();
 }
 
 // clears the board
@@ -72,16 +72,17 @@ function tick(ai) {
         freeze();
         clearLines();
         if (lose) {
-            ai.insert(lines);
-            if (lines > bestFitness) {
+            if (lines > ai.bestFitness) {
                 ai.bestFitness = lines;
-                ai.bestWeights = allWeights[wCounter];
+                ai.bestWeights = ai.allWeights[ai.count];
             }
+            ai.insert(lines);
             newGame(ai);
-            return;
+            return false;
         }
-        newShape();
+        newShape(ai);
     }
+    return true;
 }
 
 // stop shape at its position and fix it to board

@@ -7,14 +7,7 @@
     currentY
 */
 
-var AI = function (allWeights, allFitness) {
-    this.allWeights = allWeights;
-    this.allFitness = allFitness;
-    this.bestWeights = [];
-    this.bestFitness = [];
 
-    this.count = 0;
-}
 var NUM_WEIGHTS = 4;
 
 // mutation probabilities
@@ -31,10 +24,18 @@ var MIN_SCORE = -10000000;
 var allWeights = [];
 var weights = [-0.5177346300965753, -0.3354374424714595, 0.76, -0.18813470738957924];
 var allFitness = Array.apply(null, Array(1000)).map(Number.prototype.valueOf,0);
-var numGenerations = 10000;
+var numGenerations = 500;
 
+var AI = function (allWeights, allFitness) {
+    this.allWeights = allWeights;
+    this.allFitness = allFitness;
+    this.bestWeights = [];
+    this.bestFitness = 0;
 
-function movePiece() {
+    this.count = 0;
+}
+
+AI.prototype.movePiece = function() {
     var maxScore = MIN_SCORE
     var score = 0;
     var bestX = 0, bestY = 0;
@@ -48,10 +49,7 @@ function movePiece() {
                     if (j-1 <=0) {
                         break;
                     }
-                    //console.log("COL" + i);
-                    //console.log("ROW" + (j-1));
-                    score = getBoardScore(i, j-1, newCurrent);
-                    //console.log("SCORE " + score);
+                    score = this.getBoardScore(i, j-1, newCurrent);
                     if (score > maxScore) {
                         maxScore = score;
                         bestX = i;
@@ -68,23 +66,17 @@ function movePiece() {
         gameOver();
     }
     else {
-        // console.log("current "+current);
-        // console.log("before X+Y " + currentX + " " + currentY);
-        // for (var i=0; i<ROWS; i++) {
-        //     console.log("board: " + board[i]);
-        // }
         for (var i=0; i<rotations ;i++) {
             current = rotate(current);
         }
         currentX = bestX;
         currentY = bestY;
-        // console.log("after X+Y " + currentX + " " + currentY);
     }
     
     
 }
 
-function addPieceToAI(realX, realY, newCurrent) {
+AI.prototype.addPieceToAI = function(realX, realY, newCurrent) {
     for ( var y = 0; y < 4; ++y ) {
         for ( var x = 0; x < 4; ++x ) {
             if ( newCurrent[ y ][ x ] ) {
@@ -98,7 +90,7 @@ function addPieceToAI(realX, realY, newCurrent) {
     return true;
 }
 
-function removePieceFromAI(realX, realY, newCurrent) {
+AI.prototype.removePieceFromAI = function(realX, realY, newCurrent) {
     for ( var y = 0; y < 4; ++y ) {
         for ( var x = 0; x < 4; ++x ) {
             if ( newCurrent[ y ][ x ] ) {
@@ -108,8 +100,8 @@ function removePieceFromAI(realX, realY, newCurrent) {
     }
 }
 
-function getBoardScore(x, y, newCurrent) {
-    if (!addPieceToAI(x, y, newCurrent)) {
+AI.prototype.getBoardScore = function(x, y, newCurrent) {
+    if (!this.addPieceToAI(x, y, newCurrent)) {
         return MIN_SCORE
     }
 
@@ -164,12 +156,13 @@ function getBoardScore(x, y, newCurrent) {
         }
     }
 
+    //console.log(this.allWeights.length);
+    //console.log(this.count);
     for (var i = 0; i < 4; i++) {
-        score += scores[i] * weights[i];
+        score += scores[i] * this.allWeights[this.count][i];
     }
-    //console.log("maxHeight: "+maxHeight)
-    //console.log(heights);
-    removePieceFromAI(x, y, newCurrent);
+
+    this.removePieceFromAI(x, y, newCurrent);
     return score;
 }
 
@@ -205,7 +198,7 @@ AI.prototype.generateInitialWeights = function() {
     for (var j = 0; j < 1000; j++) {
         var ws = [];
         for (var i = 0; i < NUM_WEIGHTS; i++) {
-            rand = Math.random();
+            rand = Math.random() * 2 - 1;
             ws[i] = rand;
         }
         ws = this.normalizeWeights(ws);
@@ -231,8 +224,7 @@ AI.prototype.crossover = function(alpha1, alpha2, fitness1, fitness2) {
     return offspring;
 }
 
-Ai.prototype.generateChildren = function() {
-    var newWeights = [];
+AI.prototype.generateChildren = function() {
     var nextGen = [];
     var alpha1Fitness = -1, alpha2Fitness = -1;
     var alpha1 = -1, alpha2 = -1;
@@ -240,31 +232,31 @@ Ai.prototype.generateChildren = function() {
     for (var j = 0; j < 300; j++) {
         for (var i = 0; i < 100; i ++) {
             rand = Math.floor(Math.random()* 1000);
-            if (allFitness[rand] > alpha1Fitness) {
+            if (this.allFitness[rand] > alpha1Fitness) {
                 alpha2Fitness = alpha1Fitness;
-                alpha1Fitness = allFitness[rand];
+                alpha1Fitness = this.allFitness[rand];
                 alpha2 = alpha1;
                 alpha1 = rand;
             }
-            else if (allFitness[rand] > alpha2Fitness) {
-                alpha2Fitness = allFitness[rand];
+            else if (this.allFitness[rand] > alpha2Fitness) {
+                alpha2Fitness = this.allFitness[rand];
                 alpha2 = rand;
             }
         }
-        offspring = this.crossover(allFitness[alpha1], allFitness[alpha2], alpha1Fitness, alpha2Fitness);
+        offspring = this.crossover(this.allWeights[alpha1], this.allWeights[alpha2], 
+                                   alpha1Fitness, alpha2Fitness);
         nextGen[j] = offspring;
         alpha1Fitness = -1;
         alpha2Fitness = -1;
         alpha1 = -1;
         alpha2 = -1;
     }
-    this.allWeights = this.allWeights.splice(300);
-    this.allWeights = this.allWeights.concat(newWeights);
+    this.allWeights = this.allWeights.slice(300);
+    this.allWeights = this.allWeights.concat(nextGen);
     this.allFitness = Array.apply(null, Array(allWeights.length)).map(Number.prototype.valueOf,0);
 }
 
 function newGame(ai) {
-    clearInterval(interval);
     if (ai.count >= ai.allWeights.length) {
         if (numGenerations == 0) {
             clearInterval(interval);
@@ -275,16 +267,14 @@ function newGame(ai) {
         ai.count = 0;
     }
     lines = 0;
-    weights = allWeights[wCounter];
-    //console.log(weights);   
     init();
-    newShape();
+    newShape(ai);
     lose = false;
 
-    interval = setInterval(tick, 40, ai);
-   
+    setInterval(function() { tick(ai); }, 1);
+    return;
 }
 
-var ai = AI(allWeights, allFitness);
+var ai = new AI(allWeights, allFitness);
 ai.generateInitialWeights();
 newGame(ai);
