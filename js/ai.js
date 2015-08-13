@@ -22,7 +22,6 @@ var NUM_HOLES = 3;
 var MIN_SCORE = -10000000;
 
 var allWeights = [];
-var weights = [-0.5177346300965753, -0.3354374424714595, 0.76, -0.18813470738957924];
 var allFitness = Array.apply(null, Array(1000)).map(Number.prototype.valueOf,0);
 var numGenerations = 500;
 
@@ -269,5 +268,5 @@ function newGame(ai) {
 
 var ai = new AI(allWeights, allFitness);
 ai.generateInitialWeights();
-ai.allWeights[0] = [-0.49908435637767434, -0.28724063386434817, 0.11711701168624278, -0.8091299209953705];
+ai.allWeights[0] = [-0.5055318937395747, -0.2851162667048619, 0.11680367427019402, -0.8059175643633434];
 newGame(ai);
