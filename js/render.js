@@ -38,5 +38,3 @@ function render() {
         }
     }
 }
-
-renderInterval = setInterval( render, 50 );
