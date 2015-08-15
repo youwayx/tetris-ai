@@ -269,5 +269,5 @@ function newGame(ai) {
 
 var ai = new AI(allWeights, allFitness);
 ai.generateInitialWeights();
-ai.allWeights[0] = [-0.5055318937395747, -0.2851162667048619, 0.11680367427019402, -0.8059175643633434];
+ai.allWeights[0] = [-0.9513435836544014, -0.24585844685685174, 0.07432432984210316, -0.17022016314837676];
 newGame(ai);
