@@ -8,7 +8,7 @@
 */
 
 
-var NUM_WEIGHTS = 4;
+var NUM_WEIGHTS = 5;
 
 // mutation probabilities
 var MUTATE = 0.05;
@@ -18,12 +18,14 @@ var TOTAL_HEIGHT = 0;
 var SUM_HEIGHT_DIFFS = 1; //total difference between neighbouring columns
 var LINES_CLEARED = 2;
 var NUM_HOLES = 3;
+var BARRIER_HEIGHT = 4;
 
 var MIN_SCORE = -10000000;
+var NUM_GENERATIONS = 1000;
+var POPULATION_SIZE = 1000;
 
 var allWeights = [];
-var allFitness = Array.apply(null, Array(1000)).map(Number.prototype.valueOf,0);
-var numGenerations = 500;
+var allFitness = Array.apply(null, Array(POPULATION_SIZE)).map(Number.prototype.valueOf,0);
 
 var AI = function (allWeights, allFitness) {
     this.allWeights = allWeights;
@@ -108,12 +110,14 @@ AI.prototype.getBoardScore = function(x, y, newCurrent) {
     var heights = Array.apply(null, Array(COLS)).map(Number.prototype.valueOf,0);
     var maxHeight = 0;
 
-    var scores = [0,0,0,0];
+    var scores = Array.apply(null, Array(NUM_WEIGHTS)).map(Number.prototype.valueOf,0);
 
     for (var i = 0; i < COLS; i++) {
         var lastBlock = -1;
         var heightFound = false;
         var containsBlock = false;
+        var numBlocks = 0;
+        var foundBarrier = false;
         for (var j = 0; j < ROWS; j++) {
             if (lastBlock == 0 && boardAI[j][i] > 0 && !heightFound) {
                 height = ROWS - j;
@@ -127,11 +131,16 @@ AI.prototype.getBoardScore = function(x, y, newCurrent) {
 
             if (containsBlock && boardAI[j][i] == 0) {
                 scores[NUM_HOLES] ++;
+                if (!foundBarrier) {
+                    scores[BARRIER_HEIGHT] += numBlocks;
+                    foundBarrier = true;
+                }
             }
             
             lastBlock = boardAI[j][i];
             if (lastBlock > 0) {
                 containsBlock = true;
+                numBlocks++;
             }
         }
         
@@ -155,9 +164,7 @@ AI.prototype.getBoardScore = function(x, y, newCurrent) {
         }
     }
 
-    //console.log(this.allWeights.length);
-    //console.log(this.count);
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0; i < NUM_WEIGHTS; i++) {
         score += scores[i] * this.allWeights[this.count][i];
     }
 
@@ -194,7 +201,7 @@ AI.prototype.normalizeWeights = function(ws) {
 
 AI.prototype.generateInitialWeights = function() {
     var rand = 0;
-    for (var j = 0; j < 1000; j++) {
+    for (var j = 0; j < POPULATION_SIZE; j++) {
         var ws = [];
         for (var i = 0; i < NUM_WEIGHTS; i++) {
             rand = Math.random() * 2 - 1;
@@ -230,7 +237,7 @@ AI.prototype.generateChildren = function() {
     var rand;
     for (var j = 0; j < 300; j++) {
         for (var i = 0; i < 100; i ++) {
-            rand = Math.floor(Math.random()* 1000);
+            rand = Math.floor(Math.random()* POPULATION_SIZE);
             if (this.allFitness[rand] > alpha1Fitness) {
                 alpha2Fitness = alpha1Fitness;
                 alpha1Fitness = this.allFitness[rand];
@@ -269,5 +276,5 @@ function newGame(ai) {
 
 var ai = new AI(allWeights, allFitness);
 ai.generateInitialWeights();
-ai.allWeights[0] = [-0.9513435836544014, -0.24585844685685174, 0.07432432984210316, -0.17022016314837676];
+ai.allWeights[0] = [-0.7817947606332944, -0.23760747533060653, 0.12662028367047562, -0.5621360302744347, -0.0176075876784159];
 newGame(ai);
