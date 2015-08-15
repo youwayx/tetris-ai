@@ -74,7 +74,8 @@ function tick(ai) {
         if (lose) {
             if (lines > ai.bestFitness) {
                 ai.bestFitness = lines;
-                ai.bestWeights = ai.allWeights[ai.count];
+                ai.bestWs1 = ai.ws1[ai.count];
+                ai.bestWs2 = ai.ws2[ai.count];
             }
             ai.insert(lines);
             newGame(ai);
