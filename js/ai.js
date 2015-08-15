@@ -110,13 +110,13 @@ AI.prototype.feedForward = function(scores) {
     a1 = Array.apply(null, Array(L1)).map(Number.prototype.valueOf,0);
     for (var i = 0; i < L1; i++) {
         for (var j = 0; j < L0; j++) {
-            a1[i] += scores[j] * this.ws1[j][i];
+            a1[i] += scores[j] * this.ws1[this.count][i][j];
         }
     }
     a2 = Array.apply(null, Array(L2)).map(Number.prototype.valueOf,0);
     for (var i = 0; i < L2; i++) {
         for (var j = 0; j < L1; j++) {
-            a2[i] += a1[j] * this.ws2[j][i];
+            a2[i] += a1[j] * this.ws2[this.count][i][j];
         }
     }
     return a2[0];
@@ -181,6 +181,7 @@ AI.prototype.getBoardScore = function(x, y, newCurrent) {
     //console.log(this.allWeights.length);
     //console.log(this.count);
     score = this.feedForward(scores);
+    //console.log(score);
 
     this.removePieceFromAI(x, y, newCurrent);
     return score;
@@ -221,25 +222,25 @@ AI.prototype.generateInitialWeights = function() {
     for (var i = 0; i < 100; i++) {
         var w1 = [];
         var nodeWeights;
-        for (var j = 0; j < L0; j++) {
+        for (var k = 0; k < L1; k++) {
             nodeWeights = [];
-            for (var k = 0; k < L1; k++) {
+            for (var j = 0; j < L0; j++) {
                 rand = Math.random() * 2 - 1;
-                nodeWeights.append(rand);
+                nodeWeights.push(rand);
             }
             nodeWeights = this.normalizeWeights(nodeWeights);
-            w1.append(nodeWeights);
+            w1.push(nodeWeights);
         }
         this.ws1[i] = w1;
         var w2 = [];
-        for (var j = 0; j < L1; j++) {
+        for (var k = 0; k < L2; k++) {
             nodeWeights = [];
-            for (var k = 0; k < L2; k++) {
+            for (var j = 0; j < L1; j++) {
                 rand = Math.random() * 2 - 1;
-                nodeWeights.append(rand);
+                nodeWeights.push(rand);
             }
             nodeWeights = this.normalizeWeights(nodeWeights);
-            w2.append(nodeWeights);
+            w2.push(nodeWeights);
         }
         this.ws2[i] = w2;
     }
@@ -250,8 +251,9 @@ AI.prototype.crossover = function(alpha1, alpha2, fitness1, fitness2) {
     var offspring = [];
     for (var i=0; i<alpha1.length; i++) {
         offspring[i] = [];
-        for (var j = 0; j < alpha1[0].length;)
+        for (var j = 0; j < alpha1[0].length; j++) {
             offspring[i][j] = alpha1[i][j]*fitness1 + alpha2[i][j]*fitness2;
+        
         }
         offspring[i] = this.normalizeWeights(offspring[i]);
         var rand = Math.random();
@@ -262,7 +264,6 @@ AI.prototype.crossover = function(alpha1, alpha2, fitness1, fitness2) {
             offspring[i] = this.normalizeWeights(offspring[i]);
         }
     }
-    
     return offspring;
 }
 
@@ -302,7 +303,8 @@ AI.prototype.generateChildren = function() {
     this.ws2 = this.ws2.slice(30);
     this.ws1 = this.ws1.concat(nextWs1);
     this.ws2 = this.ws2.concat(nextWs2);
-    this.allFitness = Array.apply(null, Array(allWeights.length)).map(Number.prototype.valueOf,0);
+
+    this.allFitness = Array.apply(null, Array(this.ws1.length)).map(Number.prototype.valueOf,0);
 }
 
 function newGame(ai) {
@@ -327,3 +329,4 @@ function newGame(ai) {
 var ai = new AI(ws1, ws2, allFitness);
 ai.generateInitialWeights();
 newGame(ai);
+
