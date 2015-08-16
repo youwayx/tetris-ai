@@ -25,11 +25,23 @@ var colors = [
     'cyan', 'orange', 'blue', 'yellow', 'red', 'green', 'purple'
 ];
 
+var shapeBag = [];
 // creates a new 4x4 shape in global variable 'current'
 // 4x4 so as to cover the size when the shape is rotated
+
+function shuffle(o){
+    for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+    return o;
+}
+
 function newShape(ai) {
-    var id = Math.floor( Math.random() * shapes.length );
-    var shape = shapes[ id ]; // maintain id for color filling
+    if (shapeBag.length == 0) {
+        shapeBag = [0, 1, 2, 3, 4, 5, 6];
+        shapeBag = shuffle(shapeBag);
+    }
+    var id = shapeBag[0];
+    shapeBag = shapeBag.slice(1);
+    var shape = shapes[id]; // maintain id for color filling
 
     current = [];
     for ( var y = 0; y < 4; ++y ) {
