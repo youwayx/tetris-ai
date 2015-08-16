@@ -145,6 +145,7 @@ AI.prototype.getBoardScore = function(x, y, newCurrent) {
         }
         
     }
+    var linesCleared = 0;
     for (var j = 0; j < ROWS; j++) {
         var lineCleared = true;
         for (var i = 0; i < COLS; i++) {
@@ -154,9 +155,11 @@ AI.prototype.getBoardScore = function(x, y, newCurrent) {
             break;
         }
         if (lineCleared) {
-            scores[LINES_CLEARED]++;
+            linesCleared++;
         }
     }
+    scores[LINES_CLEARED] = linesCleared * linesCleared;
+    
     for (var c = 0; c < COLS; c++) {
         scores[TOTAL_HEIGHT] += heights[c];
         if (c != COLS -1) {
