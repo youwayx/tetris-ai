@@ -158,7 +158,7 @@ AI.prototype.getBoardScore = function(x, y, newCurrent) {
             linesCleared++;
         }
     }
-    scores[LINES_CLEARED] = linesCleared * linesCleared;
+    scores[LINES_CLEARED] = linesCleared;
     
     for (var c = 0; c < COLS; c++) {
         scores[TOTAL_HEIGHT] += heights[c];
