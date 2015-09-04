@@ -6,11 +6,11 @@ This is my attempt write a Tetris AI. In highschool, I worked on a Tetris Battle
 
 ### Brief Summary of AI
 
-Currently, the AI considers every possible position that the next piece can be placed and calculates a score. This score depends on four features: the total height of each column, sum of the height differences between neighbouring columns, number of lines cleared, and number of holes. There is a weight assigned to each of these features which determines how much effect they have the overall score.
+Currently, the AI considers every possible position that the next piece can be placed and calculates a score. This score depends on four features: the total height of each column, sum of the height differences between neighbouring columns, number of lines cleared, and number of holes.
 
 Initially, the AI generates 1000 sets of random weights. Each set of weights is used to simulate a tetris game. The sets that clear the most lines are used for producing the next generation of random weights. This is repeated for many generations, eventually producing sets that can clear many lines. I'll add more detail once I'm satisfied with the algorithm.
 
-The goal is to use neuralevolution to train the algorithm, similar to [MarI/O](https://www.youtube.com/watch?v=qv6UVOQ0F44)
+Checkout the `neural-network` branch for the AI trained using neuralevolution
 
 More info on Genetic Algorithms:
 https://en.wikipedia.org/wiki/Genetic_algorithm
